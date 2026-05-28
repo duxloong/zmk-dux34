@@ -46,47 +46,43 @@
  */
 
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <dt-bindings/led/led.h>
 
 
-/* ─── SPI3 pinctrl: MOSI = D1 (P0.06), SCK = dummy (P0.08) ─── */
+/* ─── PWM0 pinctrl: PWM_OUT0 = D1 (P0.06) ─── */
 &pinctrl {
-    spi3_default: spi3_default {
+    pwm0_default: pwm0_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,
-                    <NRF_PSEL(SPIM_SCK, 0, 8)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 6)>;
         };
     };
-    spi3_sleep: spi3_sleep {
+    pwm0_sleep: pwm0_sleep {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,
-                    <NRF_PSEL(SPIM_SCK, 0, 8)>;
+            psels = <NRF_PSEL(PWM_OUT0, 0, 6)>;
             low-power-enable;
         };
     };
 };
 
-/* ─── SPI3 peripheral + WS2812 LED node ─── */
-&spi3 {
-    compatible = "nordic,nrf-spim";
+/* ─── PWM0 peripheral ─── */
+&pwm0 {
     status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-0 = <&pwm0_default>;
+    pinctrl-1 = <&pwm0_sleep>;
     pinctrl-names = "default", "sleep";
+};
 
-    led_strip: ws2812@0 {
-        compatible = "worldsemi,ws2812-spi";
-        reg = <0>;
-        spi-max-frequency = <4000000>;
-        spi-one-frame  = <0x70>;
-        spi-zero-frame = <0x40>;
+/ {
+    /* WS2812 LED node using PWM */
+    led_strip: ws2812 {
+        compatible = "worldsemi,ws2812-pwm";
         chain-length = <1>;
+        pwms = <&pwm0 0 PWM_USEC(3) PWM_POLARITY_NORMAL>;
         color-mapping = <LED_COLOR_ID_GREEN
                          LED_COLOR_ID_RED
                          LED_COLOR_ID_BLUE>;
     };
-};
 
-/ {
     chosen {
         zmk,underglow = &led_strip;
         zmk,kscan = &kscan0;
