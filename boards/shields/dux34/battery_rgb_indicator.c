@@ -29,8 +29,8 @@ LOG_MODULE_REGISTER(battery_rgb, CONFIG_ZMK_LOG_LEVEL);
 
 /* ─── 用户可调参数 ──────────────────────────────────────────── */
 
-/** 低电量阈值（%），低于此值时红色闪烁 */
-#define LOW_BATT_THRESHOLD  90
+/** 低电量阈值（%），低于此值时红色闪烁（业界惯例：20%） */
+#define LOW_BATT_THRESHOLD  20
 
 /** 红色闪烁半周期（ms）: 亮 500ms / 灭 500ms */
 #define FLASH_HALF_MS       500
