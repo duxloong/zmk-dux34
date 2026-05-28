@@ -47,16 +47,18 @@
 
 #include <dt-bindings/zmk/matrix_transform.h>
 
-/* ─── SPI3 pinctrl: MOSI = D1 (P0.06) for WS2812 RGB LED ─── */
+/* ─── SPI3 pinctrl: MOSI = D1 (P0.06), SCK = dummy (P0.08) ─── */
 &pinctrl {
     spi3_default: spi3_default {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;   /* D1 = P0.06 */
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,   /* D1 = P0.06 */
+                    <NRF_PSEL(SPIM_SCK, 0, 8)>;    /* Dummy SCK (D0 = P0.08) */
         };
     };
     spi3_sleep: spi3_sleep {
         group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,
+                    <NRF_PSEL(SPIM_SCK, 0, 8)>;
             low-power-enable;
         };
     };
