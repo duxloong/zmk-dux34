@@ -1,0 +1,6 @@
+if SHIELD_DUX34
+
+config ZMK_KEYBOARD_NAME
+    default "dux34"
+
+endif
