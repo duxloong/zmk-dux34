@@ -1,3 +1,56 @@
+#include <dt-bindings/led/led.h>
+
+&pinctrl {
+    /* 1. 配置引脚复用：将 P0.06 (D1) 设置为 PWM 输出引脚 */
+    pwm0_default: pwm0_default {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 6)>; /* 0, 6 代表 P0.06，即 D1 引脚 */
+            nordic,drive-mode = <NRF_DRIVE_H0H1>; /* 增强引脚驱动能力 */
+        };
+    };
+
+    pwm0_sleep: pwm0_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 6)>;
+            low-power-enable;
+        };
+    };
+};
+
+/* 2. 启用 PWM0 模块并绑定刚才配置的引脚 */
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_default>;
+    pinctrl-1 = <&pwm0_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+/ {
+    /* 3. 创建基于 PWM 的 WS2812 灯带节点 */
+    led_strip: ws2812_pwm {
+        compatible = "worldsemi,ws2812-pwm";
+        label = "WS2812_PWM";
+
+        /* 指定使用 pwm0 的第一个通道 */
+        pwms = <&pwm0 0 PWM_KHZ(800) PWM_POLARITY_INVERTED>;
+
+        /* 硬件具体时序参数，WS2812T 标准参数 */
+        t-zero-ns = <350>;
+        t-one-ns = <700>;
+        reset-ns = <280000>;
+
+        chain-length = <1>; /* 如果串联了多颗，修改这里的数量 */
+        color-mapping = <LED_COLOR_CH_RED
+                         LED_COLOR_CH_GREEN
+                         LED_COLOR_CH_BLUE>;
+    };
+
+    /* 4. 告诉 ZMK 系统的 Underglow 绑定到这个灯带 */
+    chosen {
+        zmk,underglow = &led_strip;
+    };
+};
+
 #include <dt-bindings/zmk/matrix_transform.h>
 
 / {
