@@ -52,7 +52,11 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix-transform = &default_transform;
-        zmk,underglow = &led_strip;  /* 将 WS2812 注册为 underglow LED */
+        /* 注意：不在此设 zmk,underglow，避免与 ZMK RGB underglow 系统冲突 */
+    };
+
+    aliases {
+        dux34-led = &led_strip; /* 供自定义 widget 直接引用，与 ZMK 框架隔离 */
     };
 
     /*

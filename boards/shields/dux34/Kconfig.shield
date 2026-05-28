@@ -8,10 +8,12 @@ config DUX34_LED_WIDGET
     select LED_STRIP
     select SPI
     select ZMK_BATTERY_REPORTING
-    select ZMK_LOW_PRIORITY_WORK_QUEUE
     help
-      Enable WS2812 RGB LED status indicator on D1 pin:
+      Enable WS2812 RGB LED status indicator on D1 pin (P0.06, via SPI3):
         Yellow = Charging (USB connected, battery < 100%)
         Blue   = Fully charged (USB connected, battery = 100%)
         Red    = Low battery (battery < 20%)
         Off    = Normal use
+
+      Uses a dedicated work queue (not ZMK's low-priority queue)
+      to avoid stack overflow during SPI operations.
