@@ -9,7 +9,7 @@ if DUX34_LED_WIDGET
 config ZMK_BATTERY_REPORTING
     default y
 
-config ZMK_USB
+config ZMK_LOW_PRIORITY_WORK_QUEUE
     default y
 
 config LED_STRIP

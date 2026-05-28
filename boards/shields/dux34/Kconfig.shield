@@ -8,7 +8,7 @@ config DUX34_LED_WIDGET
     select LED_STRIP
     select SPI
     select ZMK_BATTERY_REPORTING
-    select ZMK_USB
+    select ZMK_LOW_PRIORITY_WORK_QUEUE
     help
       Enable WS2812 RGB LED status indicator on D1 pin:
         Yellow = Charging (USB connected, battery < 100%)

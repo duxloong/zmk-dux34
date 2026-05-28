@@ -22,9 +22,12 @@
 
 #include <zmk/event_manager.h>
 #include <zmk/events/battery_state_changed.h>
+#include <zmk/workqueue.h>
+
+#if IS_ENABLED(CONFIG_ZMK_USB)
 #include <zmk/events/usb_conn_state_changed.h>
 #include <zmk/usb.h>
-#include <zmk/workqueue.h>
+#endif
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -38,10 +41,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define STRIP_CHOSEN DT_CHOSEN(zmk_underglow)
 
 /* 颜色定义 */
-static const struct led_rgb COLOR_OFF    = {.r = 0,             .g = 0,             .b = 0};
-static const struct led_rgb COLOR_RED    = {.r = LED_BRIGHTNESS, .g = 0,             .b = 0};
-static const struct led_rgb COLOR_YELLOW = {.r = LED_BRIGHTNESS, .g = LED_BRIGHTNESS/2, .b = 0};
-static const struct led_rgb COLOR_BLUE   = {.r = 0,             .g = 0,             .b = LED_BRIGHTNESS};
+static const struct led_rgb COLOR_OFF    = {.r = 0,              .g = 0,              .b = 0};
+static const struct led_rgb COLOR_RED    = {.r = LED_BRIGHTNESS, .g = 0,              .b = 0};
+static const struct led_rgb COLOR_YELLOW = {.r = LED_BRIGHTNESS, .g = LED_BRIGHTNESS / 2, .b = 0};
+static const struct led_rgb COLOR_BLUE   = {.r = 0,              .g = 0,              .b = LED_BRIGHTNESS};
 
 /* 全局状态 */
 static uint8_t current_battery_level = 100;
@@ -114,7 +117,8 @@ static int dux34_led_event_listener(const zmk_event_t *eh) {
         return ZMK_EV_EVENT_BUBBLE;
     }
 
-    /* 处理 USB 连接状态变化事件 */
+#if IS_ENABLED(CONFIG_ZMK_USB)
+    /* 处理 USB 连接状态变化事件（仅在 USB 启用时编译） */
     const struct zmk_usb_conn_state_changed *usb_ev = as_zmk_usb_conn_state_changed(eh);
     if (usb_ev) {
         usb_is_powered = (usb_ev->conn_state != ZMK_USB_CONN_NONE);
@@ -122,14 +126,19 @@ static int dux34_led_event_listener(const zmk_event_t *eh) {
         k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &led_update_work);
         return ZMK_EV_EVENT_BUBBLE;
     }
+#endif /* IS_ENABLED(CONFIG_ZMK_USB) */
 
     return ZMK_EV_EVENT_BUBBLE;
 }
 
-/* 注册事件监听器 */
+/* 注册事件监听器（订阅电池事件，始终需要） */
 ZMK_LISTENER(dux34_led_widget, dux34_led_event_listener);
 ZMK_SUBSCRIPTION(dux34_led_widget, zmk_battery_state_changed);
+
+#if IS_ENABLED(CONFIG_ZMK_USB)
+/* USB 状态事件订阅（仅在 USB 启用时编译） */
 ZMK_SUBSCRIPTION(dux34_led_widget, zmk_usb_conn_state_changed);
+#endif /* IS_ENABLED(CONFIG_ZMK_USB) */
 
 /**
  * 初始化函数
@@ -145,15 +154,17 @@ static int dux34_led_widget_init(void) {
 
     k_work_init(&led_update_work, dux34_led_update_handler);
 
+#if IS_ENABLED(CONFIG_ZMK_USB)
     /* 初始化时读取当前 USB 状态 */
     usb_is_powered = zmk_usb_is_powered();
+#endif
 
-    /* 立即更新一次 LED（使用默认电量 100%，等待电池事件覆盖） */
+    /* 立即更新一次 LED（等待电池事件覆盖初始默认值） */
     k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &led_update_work);
 
     LOG_INF("DUX34 LED widget initialized (USB=%s)", usb_is_powered ? "on" : "off");
     return 0;
 }
 
-/* 在应用初始化后期启动 widget */
-SYS_INIT(dux34_led_widget_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY + 1);
+/* 在应用初始化阶段启动 widget（与 rgb_underglow 相同的优先级） */
+SYS_INIT(dux34_led_widget_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
