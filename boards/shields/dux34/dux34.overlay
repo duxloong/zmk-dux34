@@ -1,13 +1,4 @@
-/*
- * Copyright (c) 2020 The ZMK Contributors
- *
- * SPDX-License-Identifier: MIT
- */
-
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <physical_layouts.dtsi>
-#include "hesse-layouts.dtsi"
-
 
 /* The promicro aliases only cover D0 to D21, not the three extra pins in the middle
  *
