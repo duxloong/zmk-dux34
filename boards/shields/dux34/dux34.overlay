@@ -149,3 +149,11 @@
             ;
     };
 };
+
+/*
+ * Disable UART0 to completely free up D0 (P0.08) and D1 (P0.06)
+ * This prevents any potential pin conflicts with our SPI3 setup.
+ */
+&uart0 {
+    status = "disabled";
+};
