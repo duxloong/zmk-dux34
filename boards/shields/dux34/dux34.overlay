@@ -96,11 +96,6 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix-transform = &default_transform;
-        /*
-         * ZMK underglow chosen 属性：让构建系统实例化 WS2812 SPI 驱动。
-         * battery_rgb_indicator.c 会直接调用 zmk_rgb_underglow_* API。
-         */
-        zmk,underglow = &led_strip;
     };
 
     /*
