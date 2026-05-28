@@ -3,4 +3,21 @@ if SHIELD_DUX34
 config ZMK_KEYBOARD_NAME
     default "dux34"
 
-endif
+# 当启用自定义 LED widget 时，自动启用依赖项
+if DUX34_LED_WIDGET
+
+config ZMK_BATTERY_REPORTING
+    default y
+
+config ZMK_USB
+    default y
+
+config LED_STRIP
+    default y
+
+config SPI
+    default y
+
+endif # DUX34_LED_WIDGET
+
+endif # SHIELD_DUX34
