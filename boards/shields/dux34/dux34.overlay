@@ -32,18 +32,17 @@
         compatible = "worldsemi,ws2812-pwm";
         label = "WS2812_PWM";
 
-        /* 指定使用 pwm0 的第一个通道 */
-        pwms = <&pwm0 0 PWM_KHZ(800) PWM_POLARITY_INVERTED>;
+        /* 将原来的 PWM_KHZ(800) 改为 1250 纳秒周期，将 PWM_POLARITY_INVERTED 改为 1 */
+        pwms = <&pwm0 0 1250 1>;
 
-        /* 硬件具体时序参数，WS2812T 标准参数 */
+        /* 硬件具体时序参数 */
         t-zero-ns = <350>;
         t-one-ns = <700>;
         reset-ns = <280000>;
 
         chain-length = <1>; /* 如果串联了多颗，修改这里的数量 */
-        color-mapping = <LED_COLOR_CH_RED
-                         LED_COLOR_CH_GREEN
-                         LED_COLOR_CH_BLUE>;
+        /* 将 LED_COLOR_CH_XXX 宏直接替换为数字：0代表红，1代表绿，2代表蓝 */
+        color-mapping = <0 1 2>; 
     };
 
     /* 4. 告诉 ZMK 系统的 Underglow 绑定到这个灯带 */
