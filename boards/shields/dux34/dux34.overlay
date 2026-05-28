@@ -1,91 +1,5 @@
-/*
- * RGB LED on D1 (P0.06) via SPI3 (SPIM3)
- * LED type: WS2812-compatible addressable RGB LED
- * Data: D1 (P0.06) = MOSI, single-wire self-clocked protocol
- */
-
-#include <dt-bindings/led/led.h>
-
-/*
- * dux34 Keyboard Shield
- *
- * MCU: Nice!Nano (NRF52840)
- * Matrix: 4 rows x 10 cols = 34 keys (one-piece unibody)
- *
- * Using &pro_micro pin aliases to avoid manual GPIO mapping errors.
- * The nice_nano_v2 board definition handles Pro Micro -> NRF52840 GPIO translation.
- *
- * Pin Connections (Pro Micro label -> function):
- *   Rows (INPUT, pull-down, col2row diode direction):
- *     row0: D4  (P0.20)
- *     row1: D5  (P0.22)
- *     row2: D6  (P0.24)
- *     row3: D7  (P1.00)
- *
- *   Cols (OUTPUT, driven high):
- *     col0: D21 (P0.31)
- *     col1: D20 (P0.29)
- *     col2: D19 (P1.15)
- *     col3: D18 (P1.13)
- *     col4: D15 (P0.03)
- *     col5: D14 (P0.02)
- *     col6: D16 (P1.11)
- *     col7: D10 (P1.06)
- *     col8: D9  (P0.10) <- NFC pin, needs CONFIG_NFCT_PINS_AS_GPIOS=y
- *     col9: D8  (P0.09) <- NFC pin, needs CONFIG_NFCT_PINS_AS_GPIOS=y
- *
- * Diode direction: col2row
- *   Diode anode on col side, cathode on row side.
- *   Current: col (HIGH) -> switch -> diode -> row (read)
- *
- * Matrix Layout (4x10, 34 keys):
- *   Row0: col0~col9 (10 keys) - top row
- *   Row1: col0~col9 (10 keys) - home row
- *   Row2: col0~col9 (10 keys) - bottom row
- *   Row3: col3~col6 ( 4 keys) - thumb cluster
- */
-
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <dt-bindings/led/led.h>
 
-
-/* ─── SPI3 pinctrl: MOSI = D1 (P0.06), SCK = dummy D2 (P0.17) ─── */
-&pinctrl {
-    spi3_default: spi3_default {
-        group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,
-                    <NRF_PSEL(SPIM_SCK, 0, 17)>; /* Dummy SCK on D2 */
-        };
-    };
-    spi3_sleep: spi3_sleep {
-        group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>,
-                    <NRF_PSEL(SPIM_SCK, 0, 17)>;
-            low-power-enable;
-        };
-    };
-};
-
-/* ─── SPI3 peripheral + WS2812 LED node ─── */
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
-    pinctrl-names = "default", "sleep";
-
-    led_strip: ws2812@0 {
-        compatible = "worldsemi,ws2812-spi";
-        reg = <0>;
-        spi-max-frequency = <4000000>;
-        spi-one-frame  = <0x70>;
-        spi-zero-frame = <0x40>;
-        chain-length = <1>;
-        color-mapping = <LED_COLOR_ID_GREEN
-                         LED_COLOR_ID_RED
-                         LED_COLOR_ID_BLUE>;
-    };
-};
 / {
     chosen {
         zmk,kscan = &kscan0;
@@ -140,12 +54,4 @@
             , <&pro_micro  8 GPIO_ACTIVE_HIGH>   /* col9: D8  (NFC pin P0.09) */
             ;
     };
-};
-
-/*
- * Disable UART0 to completely free up D0 (P0.08) and D1 (P0.06)
- * This prevents any potential pin conflicts with our SPI3 setup.
- */
-&uart0 {
-    status = "disabled";
 };
