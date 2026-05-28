@@ -1,5 +1,6 @@
 #include <dt-bindings/led/led.h>
 #include <dt-bindings/pwm/pwm.h>
+#include <dt-bindings/zmk/matrix_transform.h>
 
 &pinctrl {
     /* 1. 配置引脚复用：将 P0.06 (D1) 设置为 PWM 输出引脚 */
@@ -51,7 +52,6 @@
     };
 };
 
-#include <dt-bindings/zmk/matrix_transform.h>
 
 / {
     chosen {

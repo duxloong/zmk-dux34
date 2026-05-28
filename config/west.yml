@@ -4,11 +4,17 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: awkannan
+      url-base: https://github.com/awkannan
     # Additional modules containing boards/shields/custom code can be listed here as well
     # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
   projects:
     - name: zmk
       remote: zmkfirmware
       import: app/west.yml
+    - name: zmk-smart-rgbled-widget
+      remote: awkannan
+      revision: main
+      path: modules/zmk-smart-rgbled-widget
   self:
     path: config
