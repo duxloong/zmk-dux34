@@ -4,24 +4,27 @@
  * MCU: Nice!Nano (NRF52840)
  * Matrix: 4 rows x 10 cols = 34 keys (one-piece unibody)
  *
- * Pin Mapping (Pro Micro label -> NRF52840 GPIO):
- *   Rows (INPUT, pull-down):
- *     row0: D4  -> P0.22
- *     row1: D5  -> P0.24
- *     row2: D6  -> P1.00
- *     row3: D7  -> P0.11
+ * Using &pro_micro pin aliases to avoid manual GPIO mapping errors.
+ * The nice_nano_v2 board definition handles Pro Micro -> NRF52840 GPIO translation.
+ *
+ * Pin Connections (Pro Micro label -> function):
+ *   Rows (INPUT, pull-down, col2row diode direction):
+ *     row0: D4  (P0.20)
+ *     row1: D5  (P0.22)
+ *     row2: D6  (P0.24)
+ *     row3: D7  (P1.00)
  *
  *   Cols (OUTPUT, driven high):
- *     col0: D21 -> P0.31
- *     col1: D20 -> P0.29
- *     col2: D19 -> P0.02
- *     col3: D18 -> P1.15
- *     col4: D15 -> P1.13
- *     col5: D14 -> P1.11
- *     col6: D16 -> P0.10
- *     col7: D10 -> P0.09
- *     col8: D8  -> P1.04
- *     col9: D9  -> P1.06
+ *     col0: D21 (P0.31)
+ *     col1: D20 (P0.29)
+ *     col2: D19 (P1.15)
+ *     col3: D18 (P1.13)
+ *     col4: D15 (P0.03)
+ *     col5: D14 (P0.02)
+ *     col6: D16 (P1.11)
+ *     col7: D10 (P1.06)
+ *     col8: D8  (P0.10) <- NFC pin, needs CONFIG_NFCT_PINS_AS_GPIOS=y
+ *     col9: D9  (P0.09) <- NFC pin, needs CONFIG_NFCT_PINS_AS_GPIOS=y
  *
  * Diode direction: col2row
  *   Diode anode on col side, cathode on row side.
@@ -39,7 +42,7 @@
 / {
     chosen {
         zmk,kscan = &kscan0;
-        zmk,physical-layout = &physical_layout0;
+        zmk,matrix-transform = &default_transform;
     };
 
     /*
@@ -63,13 +66,6 @@
         >;
     };
 
-    physical_layout0: physical_layout_0 {
-        compatible = "zmk,physical-layout";
-        display-name = "Default Layout";
-        kscan = <&kscan0>;
-        transform = <&default_transform>;
-    };
-
     kscan0: kscan_0 {
         compatible = "zmk,kscan-gpio-matrix";
 
@@ -78,23 +74,23 @@
         wakeup-source;
 
         row-gpios
-            = <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row0: D4 / P0.22 */
-            , <&gpio0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row1: D5 / P0.24 */
-            , <&gpio1  0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row2: D6 / P1.00 */
-            , <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row3: D7 / P0.11 */
+            = <&pro_micro 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row0: D4 */
+            , <&pro_micro 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row1: D5 */
+            , <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row2: D6 */
+            , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* row3: D7 */
             ;
 
         col-gpios
-            = <&gpio0 31 GPIO_ACTIVE_HIGH>   /* col0: D21 / P0.31 */
-            , <&gpio0 29 GPIO_ACTIVE_HIGH>   /* col1: D20 / P0.29 */
-            , <&gpio0  2 GPIO_ACTIVE_HIGH>   /* col2: D19 / P0.02 */
-            , <&gpio1 15 GPIO_ACTIVE_HIGH>   /* col3: D18 / P1.15 */
-            , <&gpio1 13 GPIO_ACTIVE_HIGH>   /* col4: D15 / P1.13 */
-            , <&gpio1 11 GPIO_ACTIVE_HIGH>   /* col5: D14 / P1.11 */
-            , <&gpio0 10 GPIO_ACTIVE_HIGH>   /* col6: D16 / P0.10 */
-            , <&gpio0  9 GPIO_ACTIVE_HIGH>   /* col7: D10 / P0.09 */
-            , <&gpio1  4 GPIO_ACTIVE_HIGH>   /* col8: D8  / P1.04 */
-            , <&gpio1  6 GPIO_ACTIVE_HIGH>   /* col9: D9  / P1.06 */
+            = <&pro_micro 21 GPIO_ACTIVE_HIGH>   /* col0: D21 */
+            , <&pro_micro 20 GPIO_ACTIVE_HIGH>   /* col1: D20 */
+            , <&pro_micro 19 GPIO_ACTIVE_HIGH>   /* col2: D19 */
+            , <&pro_micro 18 GPIO_ACTIVE_HIGH>   /* col3: D18 */
+            , <&pro_micro 15 GPIO_ACTIVE_HIGH>   /* col4: D15 */
+            , <&pro_micro 14 GPIO_ACTIVE_HIGH>   /* col5: D14 */
+            , <&pro_micro 16 GPIO_ACTIVE_HIGH>   /* col6: D16 */
+            , <&pro_micro 10 GPIO_ACTIVE_HIGH>   /* col7: D10 */
+            , <&pro_micro  8 GPIO_ACTIVE_HIGH>   /* col8: D8  (NFC pin P0.10) */
+            , <&pro_micro  9 GPIO_ACTIVE_HIGH>   /* col9: D9  (NFC pin P0.09) */
             ;
     };
 };
