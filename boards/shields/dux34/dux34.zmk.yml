@@ -1,0 +1,15 @@
+file_format: "1"
+id: dux34
+name: dux34
+type: shield
+url: https://github.com/duxloong/zmk-dux34
+requires:
+  - pro_micro
+features:
+  - keys
+tags:
+  - unibody
+  - 34-key
+description: >
+  dux34 is a 34-key unibody keyboard powered by a single Nice!Nano (NRF52840).
+  It features a 4×10 key matrix (rows 0-2 have 10 keys each, row 3 has 4 thumb keys).
