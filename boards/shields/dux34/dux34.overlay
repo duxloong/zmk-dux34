@@ -1,62 +1,9 @@
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <dt-bindings/led/led.h>
-
-/*
- * P0.06 (D1) 被 uart0 TX 默认占用，需要将其释放给 SPI3 MOSI（WS2812）
- * 禁用 uart0（ZMK 蓝牙固件不使用串口）
- */
-&uart0 {
-    status = "disabled";
-};
-
-&pinctrl {
-    /*
-     * SPI3 (SPIM3) 是 nRF52840 专为高速 I/O 设计的 SPI 外设，
-     * 内置 Radio 协同机制，与 BLE 协议栈共存，不会引起断连。
-     * WS2812 只需要 MOSI，配置 P0.06 (D1)。
-     */
-    spi3_default: spi3_default {
-        group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
-        };
-    };
-    spi3_sleep: spi3_sleep {
-        group1 {
-            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
-            low-power-enable;
-        };
-    };
-};
-
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
-    pinctrl-names = "default", "sleep";
-
-    led_strip: ws2812@0 {
-        compatible = "worldsemi,ws2812-spi";
-        reg = <0>;
-        spi-max-frequency = <4000000>;
-        chain-length = <1>;          /* 仅 1 颗 WS2812 */
-        color-mapping = <LED_COLOR_ID_GREEN
-                         LED_COLOR_ID_RED
-                         LED_COLOR_ID_BLUE>;
-        spi-one-frame = <0x70>;
-        spi-zero-frame = <0x40>;
-    };
-};
 
 / {
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix-transform = &default_transform;
-        /* 注意：不在此设 zmk,underglow，避免与 ZMK RGB underglow 系统冲突 */
-    };
-
-    aliases {
-        dux34-led = &led_strip; /* 供自定义 widget 直接引用，与 ZMK 框架隔离 */
     };
 
     /*
